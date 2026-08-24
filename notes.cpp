@@ -93,6 +93,29 @@ void list() {
         }
     }
 }
+void removeNote(const std::string& name) {
+    std::ifstream inFile("data.txt");
+    std::ofstream outFile("temp.txt",std::ios_base::app);
+
+    if (!inFile || !outFile) return;
+
+    std::string line;
+    while (std::getline(inFile,line))  {
+        size_t colonPos = line.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0, colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+            if (noteName == name) continue;
+            
+            outFile << noteName << ':' << noteText << '\n';
+        }
+    }
+    inFile.close();
+    outFile.close();
+    std::filesystem::remove("data.txt");
+    std::filesystem::rename("temp.txt","data.txt");
+}
 void uploadCin() {
     note n;
     std::cout << "\nEnter name of note: ";
@@ -118,6 +141,12 @@ void changeCin() {
     std::getline(std::cin,text);
     change(std::move(n),text);
 }
+void removeCin() {
+    std::string name;
+    std::cout << "\nEnter name of note: ";
+    std::getline(std::cin,name);
+    removeNote(name);
+}
 
 std::string userInput() {
     std::string cmd;
@@ -131,7 +160,8 @@ void executeCommand(const std::string& name) {
         {"get",getCin},
         {"change",changeCin},
         {"upload",uploadCin},
-        {"list",list}
+        {"list",list},
+        {"remove",removeCin}
     };
    
     auto it = commands.find(name);

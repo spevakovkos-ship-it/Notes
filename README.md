@@ -10,6 +10,8 @@ Simple notes app writen in C++
 | `upload` | save note in file
 | `change` | change note text
 | `get` | get note by name
+| `remove` | remove note
+
 
 ## Build
 Build the app using g++ compiler
