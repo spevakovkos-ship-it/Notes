@@ -116,6 +116,38 @@ void removeNote(const std::string& name) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+void renameNote(const std::string& name,const std::string& newName) {
+    std::ifstream inFile("data.txt");
+    std::ofstream outFile("temp.txt",std::ios_base::app);
+    if (!inFile || !outFile) return;
+    std::string line;
+    while (std::getline(inFile,line))  {
+        size_t colonPos = line.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0, colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+            if (noteName == name) {
+                outFile << newName << ':' << noteText;
+                continue;
+            }
+            
+            outFile << noteName << ':' << noteText << '\n';
+        }
+    }
+    outFile.close();
+    inFile.close();
+    std::filesystem::remove("data.txt");
+    std::filesystem::rename("temp.txt","data.txt");
+}
+void renameCin() {
+    std::string name,newName;
+    std::cout << "\nEnter name of note: ";
+    std::getline(std::cin,name);
+    std::cout << "\nEnter newName of note " << name << ": ";
+    std::getline(std::cin,newName);
+    renameNote(name,newName);
+}
 void uploadCin() {
     note n;
     std::cout << "\nEnter name of note: ";
@@ -147,7 +179,9 @@ void removeCin() {
     std::getline(std::cin,name);
     removeNote(name);
 }
-
+void help() {
+    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n";
+}
 std::string userInput() {
     std::string cmd;
     std::cout << "Enter you action: ";
@@ -161,7 +195,9 @@ void executeCommand(const std::string& name) {
         {"change",changeCin},
         {"upload",uploadCin},
         {"list",list},
-        {"remove",removeCin}
+        {"remove",removeCin},
+        {"rename",renameCin},
+        {"help",help}
     };
    
     auto it = commands.find(name);

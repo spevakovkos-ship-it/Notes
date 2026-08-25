@@ -11,6 +11,10 @@ Simple notes app writen in C++
 | `change` | change note text
 | `get` | get note by name
 | `remove` | remove note
+| `rename` | rename note
+| `q` | quit
+| `help` | get all commands
+
 
 
 ## Build
@@ -19,6 +23,10 @@ Build the app using g++ compiler
 ```bash
 g++ notes.cpp -o app
 ```
-
+## Run
+Run the app 
+```bash
+./app
+```
 ## Status
 Notes is on-going hobby project on C++ 
