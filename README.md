@@ -14,6 +14,9 @@ Simple notes app writen in C++
 | `rename` | rename note
 | `q` | quit
 | `help` | get all commands
+| `count` | count all notes
+| `append` | append text to note
+
 
 
 

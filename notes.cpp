@@ -140,6 +140,45 @@ void renameNote(const std::string& name,const std::string& newName) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+void count() {
+    
+    std::ifstream file("data.txt");
+    int count = 0;
+    std::string line;
+    while (std::getline(file,line))  {
+        if ((line.find(':')) != std::string::npos)
+            ++count;
+    }
+    std::cout << count << std::endl;
+}
+void append(const std::string name,const std::string& value) {
+    std::ifstream inFile("data.txt");
+    std::ofstream outFile("temp.txt");
+
+    std::string line;
+    while (getline(inFile,line)) {
+        
+        size_t colonPos = line.find(':');
+
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0,colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+
+            if (noteName == name) {
+                outFile << noteName << ':' << (noteText + value)<< '\n';
+                continue;
+            }
+        }
+        outFile << line << '\n';
+        
+    }
+
+    inFile.close();
+    outFile.close();
+
+    std::filesystem::remove("data.txt");
+    std::filesystem::rename("temp.txt","data.txt");
+}
 void renameCin() {
     std::string name,newName;
     std::cout << "\nEnter name of note: ";
@@ -147,6 +186,15 @@ void renameCin() {
     std::cout << "\nEnter newName of note " << name << ": ";
     std::getline(std::cin,newName);
     renameNote(name,newName);
+}
+
+void appendCin() {
+    std::string name,value;
+    std::cout << "\nEnter name of note: ";
+    std::getline(std::cin,name);
+    std::cout << "\nEnter: ";
+    std::getline(std::cin,value);
+    append(name,value);
 }
 void uploadCin() {
     note n;
@@ -180,7 +228,7 @@ void removeCin() {
     removeNote(name);
 }
 void help() {
-    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n";
+    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n| count | count all notes\n| append | append text to note\n";
 }
 std::string userInput() {
     std::string cmd;
@@ -197,7 +245,9 @@ void executeCommand(const std::string& name) {
         {"list",list},
         {"remove",removeCin},
         {"rename",renameCin},
-        {"help",help}
+        {"help",help},
+        {"count",count},
+        {"append",appendCin}
     };
    
     auto it = commands.find(name);
