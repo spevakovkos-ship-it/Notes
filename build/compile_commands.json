@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Users/admin/Desktop/C++/Notes/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe   -g -std=gnu++23 -o CMakeFiles\\app.dir\\notes.cpp.obj -c C:\\Users\\admin\\Desktop\\C++\\Notes\\notes.cpp",
-  "file": "C:/Users/admin/Desktop/C++/Notes/notes.cpp",
-  "output": "CMakeFiles/app.dir/notes.cpp.obj"
-}
-]

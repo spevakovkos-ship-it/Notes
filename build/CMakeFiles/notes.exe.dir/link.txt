@@ -1,3 +1,0 @@
-C:\msys64\ucrt64\bin\cmake.exe -E rm -f CMakeFiles\notes.exe.dir/objects.a
-C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\notes.exe.dir/objects.a @CMakeFiles\notes.exe.dir\objects1.rsp
-C:\msys64\ucrt64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\notes.exe.dir/objects.a -Wl,--no-whole-archive -o C:\Users\admin\Desktop\C++\Notes\notes.exe.exe -Wl,--out-implib,libnotes.exe.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\notes.exe.dir\linkLibs.rsp
