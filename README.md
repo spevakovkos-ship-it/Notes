@@ -16,7 +16,7 @@ Simple notes app writen in C++
 | `help` | get all commands
 | `count` | count all notes
 | `append` | append text to note
-
+| `random` | get random note 
 
 
 

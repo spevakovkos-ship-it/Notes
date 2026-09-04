@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <filesystem>
 #include <functional>
+#include <random>
 struct note {
     std::string text;
     std::string name;
@@ -115,6 +116,35 @@ void removeNote(const std::string& name) {
     outFile.close();
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
+}
+void randomNote() {
+    std::ifstream file("data.txt");
+    int lineCount = 0;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        ++lineCount;
+    }
+    
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0,lineCount-1);
+    file.clear();                
+    file.seekg(0, std::ios::beg);
+    int randPos = distr(gen);
+    int i = 0;
+    line = "";
+    while (std::getline(file, line)) {
+        if (i == randPos) {
+            std::string name = line.substr(0,line.find(':'));
+            note n = get(name);
+            std::cout << n.name << " - " << n.text << std::endl;
+            break;
+        }
+        ++i;
+    }
+    
+
 }
 void renameNote(const std::string& name,const std::string& newName) {
     std::ifstream inFile("data.txt");
@@ -247,7 +277,8 @@ void executeCommand(const std::string& name) {
         {"rename",renameCin},
         {"help",help},
         {"count",count},
-        {"append",appendCin}
+        {"append",appendCin},
+        {"random",randomNote}
     };
    
     auto it = commands.find(name);
