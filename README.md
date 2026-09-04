@@ -21,10 +21,10 @@ Simple notes app writen in C++
 
 
 ## Build
-Build the app using g++ compiler
+Build the app using CMake 
 
-```bash
-g++ notes.cpp -o app
+```text
+Press `F7`
 ```
 ## Run
 Run the app 
