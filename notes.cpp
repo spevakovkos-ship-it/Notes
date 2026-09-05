@@ -94,6 +94,11 @@ void list() {
         }
     }
 }
+void duplicateNote(const std::string& name,const std::string& newName) {
+    note n = get(name);
+    n.name = newName;
+    upload(std::move(n));
+}
 void removeNote(const std::string& name) {
     std::ifstream inFile("data.txt");
     std::ofstream outFile("temp.txt",std::ios_base::app);
@@ -217,7 +222,14 @@ void renameCin() {
     std::getline(std::cin,newName);
     renameNote(name,newName);
 }
-
+void duplicateNoteCin(){
+    std::string name,newName;
+    std::cout << "\nEnter name of note: ";
+    std::getline(std::cin,name);
+    std::cout << "\nEnter name of duplicate note: ";
+    std::getline(std::cin,newName);
+    duplicateNote(name,newName);
+}
 void appendCin() {
     std::string name,value;
     std::cout << "\nEnter name of note: ";
@@ -278,7 +290,8 @@ void executeCommand(const std::string& name) {
         {"help",help},
         {"count",count},
         {"append",appendCin},
-        {"random",randomNote}
+        {"random",randomNote},
+        {"duplicate",duplicateNoteCin}
     };
    
     auto it = commands.find(name);

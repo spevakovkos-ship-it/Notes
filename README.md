@@ -17,6 +17,7 @@ Simple notes app writen in C++
 | `count` | count all notes
 | `append` | append text to note
 | `random` | get random note 
+| `duplicate` |duplicate note 
 
 
 
