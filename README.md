@@ -18,6 +18,7 @@ Simple notes app writen in C++
 | `append` | append text to note
 | `random` | get random note 
 | `duplicate` |duplicate note 
+| `pin` | pin note
 
 
 
