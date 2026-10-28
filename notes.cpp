@@ -23,6 +23,8 @@ void upload(note&& note) {
 
 }
 
+
+
 note get(const std::string& name) {
     note n;
 
@@ -81,7 +83,20 @@ void change(note&& n, const std::string& newText) {
 void list() {
     
     std::ifstream file("data.txt");
+    std::ifstream pinnedFile("pinned.txt");
+    std::string pinnedLine;
+    std::cout << "-------------------Pinned-------------------\n";
+    while (std::getline(pinnedFile,pinnedLine))  {
+        size_t colonPos = pinnedLine.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string pinnedNoteName = pinnedLine.substr(0, colonPos);
+            std::string pinnedNoteText = pinnedLine.substr(colonPos + 1);
 
+            std::cout << pinnedNoteName << " - " << pinnedNoteText << std::endl;
+        }
+    } 
+    std::cout << "-------------------Standard-----------------\n";
     std::string line;
     while (std::getline(file,line))  {
         size_t colonPos = line.find(':');
@@ -214,6 +229,12 @@ void append(const std::string name,const std::string& value) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+
+void pin(note&& n) {
+    std::ofstream outFile("pinned.txt",std::ios_base::app);
+
+    outFile << n.name << ":" << n.text << '\n';
+}
 void renameCin() {
     std::string name,newName;
     std::cout << "\nEnter name of note: ";
@@ -269,6 +290,17 @@ void removeCin() {
     std::getline(std::cin,name);
     removeNote(name);
 }
+void pinCin() {
+    note n;
+    std::cout << "\nEnter name of note:";
+    std::getline(std::cin,n.name);
+    std::cout << "\nEnter text:";
+    std::getline(std::cin,n.text);
+    pin(std::move(n));
+}
+
+
+
 void help() {
     std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n| count | count all notes\n| append | append text to note\n";
 }
@@ -291,7 +323,8 @@ void executeCommand(const std::string& name) {
         {"count",count},
         {"append",appendCin},
         {"random",randomNote},
-        {"duplicate",duplicateNoteCin}
+        {"duplicate",duplicateNoteCin},
+        {"pin",pinCin},
     };
    
     auto it = commands.find(name);
