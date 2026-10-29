@@ -7,23 +7,55 @@
 #include <filesystem>
 #include <functional>
 #include <random>
+#include <chrono>
 struct note {
     std::string text;
     std::string name;
 }; 
-
 
 void upload(note&& note) {
     std::ofstream file("data.txt",std::ios_base::app);
 
     if (!file.is_open())  
         return;
-
     file << '\n' <<note.name << ":" << note.text;
-
+   
 }
 
+void find(const std::string& text) { 
+    std::ifstream file("data.txt");
 
+    std::string line;
+    while (std::getline(file,line)) {
+        size_t colonPos = line.find(':');
+        if (colonPos != std::string::npos) { 
+            std::string noteName = line.substr(0,colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+
+            if (noteText.find(text)!=std::string::npos) {
+                std::cout << noteName << " - " << noteText << '\n';
+
+            }
+        }
+    }
+}
+
+void findPinned(const std::string& text) { 
+    std::ifstream file("pinned.txt");
+
+    std::string line;
+    while (std::getline(file,line)) {
+        size_t colonPos = line.find(':');
+        if (colonPos != std::string::npos) { 
+            std::string noteName = line.substr(0,colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+
+            if (noteText.find(text)!=std::string::npos) {
+                std::cout << noteName << " - " << noteText << '\n';
+            }
+        }
+    }
+}
 note getPinned(const std::string& name) {
     note n;
 
@@ -134,6 +166,7 @@ void changePinned(note&& n, const std::string& newText) {
     std::filesystem::remove("pinned.txt");
     std::filesystem::rename("temp.txt", "pinned.txt");
 }
+
 void list() {
     
     std::ifstream file("data.txt");
@@ -177,7 +210,9 @@ void duplicateNote(const std::string& name,const std::string& newName) {
 void pin(note&& n) {
     std::ofstream outFile("pinned.txt",std::ios_base::app);
 
-    outFile << n.name << ":" << n.text << '\n';
+    outFile << n.name << ":" << n.text << '\n';   
+ 
+ 
 }
 void duplicatePinnedNote(const std::string& name,const std::string& newName) {
     note n = getPinned(name);
@@ -287,6 +322,7 @@ void randomPinnedNote() {
     
 
 }
+
 void renameNote(const std::string& name,const std::string& newName) {
     std::ifstream inFile("data.txt");
     std::ofstream outFile("temp.txt",std::ios_base::app);
@@ -524,7 +560,20 @@ void pinCin() {
     std::getline(std::cin,n.text);
     pin(std::move(n));
 }
-
+void findCin() {
+    std::cout << "\nEnter text: ";
+    std::string text;
+    std::getline(std::cin,text);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    if (mode == "standard") {
+        find(text);
+    } else if (mode == "pinned") {
+        findPinned(text);
+    }
+    
+}
 
 
 void help() {
@@ -554,6 +603,7 @@ void executeCommand(const std::string& name) {
         {"duplicate",duplicateNoteCin},
         {"pin",pinCin},
         {"countPinned",countPinned},
+        {"find",findCin},  
     };
    
     auto it = commands.find(name);
