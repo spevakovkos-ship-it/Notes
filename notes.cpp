@@ -140,28 +140,34 @@ void list() {
     std::ifstream pinnedFile("pinned.txt");
     std::string pinnedLine;
     std::cout << "-------------------Pinned-------------------\n";
+    bool oneInPinned = false;
     while (std::getline(pinnedFile,pinnedLine))  {
         size_t colonPos = pinnedLine.find(':');
         
         if (colonPos != std::string::npos) {
+            oneInPinned = true;
             std::string pinnedNoteName = pinnedLine.substr(0, colonPos);
             std::string pinnedNoteText = pinnedLine.substr(colonPos + 1);
 
             std::cout << pinnedNoteName << " - " << pinnedNoteText << std::endl;
         }
     } 
+    if (!oneInPinned) std::cout << "Pinned Is empty\n";
     std::cout << "-------------------Standard-----------------\n";
     std::string line;
+    bool oneInStandard = false;
     while (std::getline(file,line))  {
         size_t colonPos = line.find(':');
         
         if (colonPos != std::string::npos) {
+            oneInStandard = true;
             std::string noteName = line.substr(0, colonPos);
             std::string noteText = line.substr(colonPos + 1);
 
             std::cout << noteName << " - " << noteText << std::endl;
         }
     }
+    if (!oneInStandard) std::cout << "Standard is empty\n";
 }
 void duplicateNote(const std::string& name,const std::string& newName) {
     note n = get(name);
@@ -522,7 +528,8 @@ void pinCin() {
 
 
 void help() {
-    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n| count | count all notes\n| append | append text to note\n| pin | pin note\n| countPinned | count all pinned notes\n| randomPinned | random pinned note\n";
+    std::cout << "\n--------command--------action--------\n";
+    std::cout << "|\033[32m list \033[0m| get all notes\n|\033[32m upload \033[0m| save note in file\n|\033[32m change\033[0m | change note text\n|\033[32m get \033[0m| get note by name\n|\033[32m remove \033[0m| remove note\n|\033[32m rename \033[0m| rename note\n|\033[32m help \033[0m| this message\n|\033[32m q \033[0m| quit\n|\033[32m count \033[0m| count all notes\n|\033[32m append \033[0m| append text to note\n|\033[32m pin \033[0m| pin note\n|\033[32m countPinned \033[0m| count all pinned notes\n|\033[32m randomPinned \033[0m| random pinned note\n";
 }
 std::string userInput() {
     std::string cmd;
