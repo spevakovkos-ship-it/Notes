@@ -19,7 +19,8 @@ Simple notes app writen in C++
 | `random` | get random note 
 | `duplicate` |duplicate note 
 | `pin` | pin note
-
+| `countPinned` | count all pinned notes
+| `randomPinned` | get random pinned note
 
 
 ## Build

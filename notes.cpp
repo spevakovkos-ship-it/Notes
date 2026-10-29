@@ -24,7 +24,29 @@ void upload(note&& note) {
 }
 
 
+note getPinned(const std::string& name) {
+    note n;
 
+    std::ifstream file("pinned.txt");
+
+    std::string line;
+    while (std::getline(file,line)) {
+
+        size_t colonPos = line.find(':');
+        if (colonPos != std::string::npos) {
+
+            std::string noteName = line.substr(0,colonPos);
+            std::string text = line.substr(colonPos + 1);
+
+            if (name == noteName) {
+                n.name = noteName;
+                n.text = text;
+                return n;
+            } 
+        }
+    }
+    return n;
+}
 note get(const std::string& name) {
     note n;
 
@@ -80,6 +102,38 @@ void change(note&& n, const std::string& newText) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt", "data.txt");
 }
+void changePinned(note&& n, const std::string& newText) {
+    std::ifstream inFile("pinned.txt");
+    std::ofstream outFile("temp.txt");
+
+    if (!inFile.is_open() || !outFile.is_open()) {
+        return;
+    }
+
+    std::string line;
+    while (std::getline(inFile, line)) {
+        size_t colonPos = line.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0, colonPos);
+            
+            if (noteName == n.name) {
+                n.text = newText; 
+                
+                outFile << noteName << ":" << newText << "\n";
+                continue; 
+            }
+        }
+        
+        outFile << line << "\n";
+    }
+
+    inFile.close();
+    outFile.close();
+
+    std::filesystem::remove("pinned.txt");
+    std::filesystem::rename("temp.txt", "pinned.txt");
+}
 void list() {
     
     std::ifstream file("data.txt");
@@ -114,6 +168,16 @@ void duplicateNote(const std::string& name,const std::string& newName) {
     n.name = newName;
     upload(std::move(n));
 }
+void pin(note&& n) {
+    std::ofstream outFile("pinned.txt",std::ios_base::app);
+
+    outFile << n.name << ":" << n.text << '\n';
+}
+void duplicatePinnedNote(const std::string& name,const std::string& newName) {
+    note n = getPinned(name);
+    n.name = newName;
+    pin(std::move(n));
+}
 void removeNote(const std::string& name) {
     std::ifstream inFile("data.txt");
     std::ofstream outFile("temp.txt",std::ios_base::app);
@@ -137,6 +201,29 @@ void removeNote(const std::string& name) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+void removePinnedNote(const std::string& name) {
+    std::ifstream inFile("pinned.txt");
+    std::ofstream outFile("temp.txt",std::ios_base::app);
+
+    if (!inFile || !outFile) return;
+
+    std::string line;
+    while (std::getline(inFile,line))  {
+        size_t colonPos = line.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0, colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+            if (noteName == name) continue;
+            
+            outFile << noteName << ':' << noteText << '\n';
+        }
+    }
+    inFile.close();
+    outFile.close();
+    std::filesystem::remove("pinned.txt");
+    std::filesystem::rename("temp.txt","pinned.txt");
+}
 void randomNote() {
     std::ifstream file("data.txt");
     int lineCount = 0;
@@ -158,6 +245,34 @@ void randomNote() {
         if (i == randPos) {
             std::string name = line.substr(0,line.find(':'));
             note n = get(name);
+            std::cout << n.name << " - " << n.text << std::endl;
+            break;
+        }
+        ++i;
+    }
+    
+}
+void randomPinnedNote() {
+    std::ifstream file("pinned.txt");
+    int lineCount = 0;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        ++lineCount;
+    }
+    
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0,lineCount-1);
+    file.clear();                
+    file.seekg(0, std::ios::beg);
+    int randPos = distr(gen);
+    int i = 0;
+    line = "";
+    while (std::getline(file, line)) {
+        if (i == randPos) {
+            std::string name = line.substr(0,line.find(':'));
+            note n = getPinned(name);
             std::cout << n.name << " - " << n.text << std::endl;
             break;
         }
@@ -190,9 +305,44 @@ void renameNote(const std::string& name,const std::string& newName) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+void renamePinnedNote(const std::string& name,const std::string& newName) {
+    std::ifstream inFile("pinned.txt");
+    std::ofstream outFile("temp.txt",std::ios_base::app);
+    if (!inFile || !outFile) return;
+    std::string line;
+    while (std::getline(inFile,line))  {
+        size_t colonPos = line.find(':');
+        
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0, colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+            if (noteName == name) {
+                outFile << newName << ':' << noteText;
+                continue;
+            }
+            
+            outFile << noteName << ':' << noteText << '\n';
+        }
+    }
+    outFile.close();
+    inFile.close();
+    std::filesystem::remove("pinned.txt");
+    std::filesystem::rename("temp.txt","pinned.txt");
+}
 void count() {
     
     std::ifstream file("data.txt");
+    int count = 0;
+    std::string line;
+    while (std::getline(file,line))  {
+        if ((line.find(':')) != std::string::npos)
+            ++count;
+    }
+    std::cout << count << std::endl;
+}
+void countPinned() {
+    
+    std::ifstream file("pinned.txt");
     int count = 0;
     std::string line;
     while (std::getline(file,line))  {
@@ -229,19 +379,49 @@ void append(const std::string name,const std::string& value) {
     std::filesystem::remove("data.txt");
     std::filesystem::rename("temp.txt","data.txt");
 }
+void appendPinned(const std::string name,const std::string& value) {
+    std::ifstream inFile("pinned.txt");
+    std::ofstream outFile("temp.txt");
 
-void pin(note&& n) {
-    std::ofstream outFile("pinned.txt",std::ios_base::app);
+    std::string line;
+    while (getline(inFile,line)) {
+        
+        size_t colonPos = line.find(':');
 
-    outFile << n.name << ":" << n.text << '\n';
+        if (colonPos != std::string::npos) {
+            std::string noteName = line.substr(0,colonPos);
+            std::string noteText = line.substr(colonPos + 1);
+
+            if (noteName == name) {
+                outFile << noteName << ':' << (noteText + value)<< '\n';
+                continue;
+            }
+        }
+        outFile << line << '\n';
+        
+    }
+
+    inFile.close();
+    outFile.close();
+
+    std::filesystem::remove("pinned.txt");
+    std::filesystem::rename("temp.txt","pinned.txt");
 }
+
 void renameCin() {
     std::string name,newName;
     std::cout << "\nEnter name of note: ";
     std::getline(std::cin,name);
     std::cout << "\nEnter newName of note " << name << ": ";
     std::getline(std::cin,newName);
-    renameNote(name,newName);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    if (mode == "pinned") {
+        renamePinnedNote(name,newName);
+    } else if (mode == "standard") {
+        renameNote(name,newName);
+    }
 }
 void duplicateNoteCin(){
     std::string name,newName;
@@ -249,7 +429,14 @@ void duplicateNoteCin(){
     std::getline(std::cin,name);
     std::cout << "\nEnter name of duplicate note: ";
     std::getline(std::cin,newName);
-    duplicateNote(name,newName);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode); 
+    if (mode == "pinned") {
+        duplicatePinnedNote(name,newName);
+    } else if (mode == "standard") {
+        duplicateNote(name,newName);
+    }
 }
 void appendCin() {
     std::string name,value;
@@ -257,7 +444,14 @@ void appendCin() {
     std::getline(std::cin,name);
     std::cout << "\nEnter: ";
     std::getline(std::cin,value);
-    append(name,value);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    if (mode == "pinned") {
+        appendPinned(name,value);
+    } else if (mode == "standard") {
+        append(name,value);
+    }
 }
 void uploadCin() {
     note n;
@@ -271,24 +465,50 @@ void getCin() {
     std::string name;
     std::cout << "\nEnter name of note: ";
     std::getline(std::cin,name);
-    note n = get(name);
-    std::cout << n.text << std::endl;
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    note n;
+    if (mode == "pinned") {
+        n = getPinned(name);
+        std::cout << n.text  << std::endl;
+    } else if (mode == "standard") {
+        n = get(name);
+        std::cout << n.text << std::endl;
+    }
+   
 }
 void changeCin() {
     std::string name;
     std::cout << "\nEnter name of note: ";
     std::getline(std::cin,name);
-    note n = get(name);
     std::string text;
     std::cout << "\nEnter new text: ";
     std::getline(std::cin,text);
-    change(std::move(n),text);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    if (mode == "standard"){
+        note n = get(name);
+        change(std::move(n),text);
+    } else if (mode == "pinned") {
+        note n = getPinned(name);
+        changePinned(std::move(n),text);
+    }
 }
 void removeCin() {
     std::string name;
     std::cout << "\nEnter name of note: ";
     std::getline(std::cin,name);
-    removeNote(name);
+    std::string mode;
+    std::cout << "\nEnter mode [pinned,standard]: ";
+    std::getline(std::cin,mode);
+    if (mode == "standard") {
+        removeNote(name);
+    } else if (mode == "pinned") {
+        removePinnedNote(name);
+    }
+    
 }
 void pinCin() {
     note n;
@@ -302,7 +522,7 @@ void pinCin() {
 
 
 void help() {
-    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n| count | count all notes\n| append | append text to note\n| pin | pin note\n";
+    std::cout << "| list | get all notes\n| upload | save note in file\n| change | change note text\n| get | get note by name\n| remove | remove note\n| rename | rename note\n| help | this message\n| q | quit\n| count | count all notes\n| append | append text to note\n| pin | pin note\n| countPinned | count all pinned notes\n| randomPinned | random pinned note\n";
 }
 std::string userInput() {
     std::string cmd;
@@ -323,8 +543,10 @@ void executeCommand(const std::string& name) {
         {"count",count},
         {"append",appendCin},
         {"random",randomNote},
+        {"randomPinned",randomPinnedNote},
         {"duplicate",duplicateNoteCin},
         {"pin",pinCin},
+        {"countPinned",countPinned},
     };
    
     auto it = commands.find(name);
